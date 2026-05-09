@@ -4,11 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Presupuesto Educación Chile 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --azul:        #1a3a5c;
-      --azul-med:    #2c5f8a;
-      --azul-claro:  #4a90d9;
+      --azul:        #001051;
+      --azul-med:    #0d1f7c;
+      --azul-claro:  #4bc691;
+      --verde:       #4bc691;
+      --rosa:        #ea517b;
+      --amarillo:    #fec82f;
       --gris:        #f5f7fa;
       --borde:       #dde3ea;
       --texto:       #2d3748;
@@ -16,7 +22,7 @@
       --item-bg:     #f7fafc;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--texto); }
+    body { font-family: 'Roboto', system-ui, sans-serif; background: var(--gris); color: var(--texto); }
 
     /* ── Header ── */
     header {
@@ -45,7 +51,7 @@
     .tabs { display: flex; gap: .45rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
     .tab { padding: .45rem 1rem; border: 1px solid var(--borde); border-radius: 6px;
       cursor: pointer; font-size: .85rem; background: white; color: var(--texto); transition: all .12s; }
-    .tab:hover { border-color: var(--azul-claro); color: var(--azul-claro); }
+    .tab:hover { border-color: var(--verde); color: var(--verde); }
     .tab.activo { background: var(--azul); color: white; border-color: var(--azul); }
 
     /* ── Panels ── */
@@ -69,7 +75,7 @@
       border: 1px solid var(--borde); border-radius: 6px;
       padding: .42rem .7rem; font-size: .85rem; background: white; color: var(--texto); outline: none;
     }
-    select:focus, input:focus { border-color: var(--azul-claro); }
+    select:focus, input:focus { border-color: var(--verde); }
     input[type=text] { min-width: 210px; }
     .btn { padding: .45rem 1rem; background: var(--azul); color: white; border: none;
       border-radius: 6px; cursor: pointer; font-size: .85rem; transition: background .12s; }
@@ -83,28 +89,28 @@
     thead th { background: var(--azul); color: white; padding: .55rem .7rem;
       text-align: left; font-weight: 600; position: sticky; top: 0; white-space: nowrap; }
     tbody tr { border-bottom: 1px solid var(--borde); }
-    tbody tr:hover { background: #eef6ff; }
+    tbody tr:hover { background: #eaf7f2; }
     tbody td { padding: .45rem .7rem; vertical-align: middle; }
     .num { text-align: right; font-variant-numeric: tabular-nums; }
     .mono { font-family: monospace; font-size: .8rem; }
 
     /* ── Link-style rows ── */
     .link-row { cursor: pointer; }
-    .link-row:hover .prog-nom { color: var(--azul-claro); text-decoration: underline; }
+    .link-row:hover .prog-nom { color: var(--verde); text-decoration: underline; }
     .chevron-btn {
       background: none; border: none; cursor: pointer; font-size: .78rem;
       color: var(--azul-claro); padding: .18rem .45rem; border-radius: 4px;
       white-space: nowrap; display: inline-flex; align-items: center; gap: .3rem;
     }
-    .chevron-btn:hover { background: #ebf8ff; }
+    .chevron-btn:hover { background: #d0f5e6; }
 
     /* ── Chips de nivel ── */
     .chip { display: inline-block; padding: .13rem .5rem; border-radius: 99px;
       font-size: .69rem; font-weight: 600; white-space: nowrap; }
-    .chip-Escolar    { background: #bee3f8; color: #1a365d; }
-    .chip-Superior   { background: #d6bcfa; color: #44337a; }
-    .chip-Parvularia { background: #c6f6d5; color: #1c4532; }
-    .chip-Multinivel { background: #fefcbf; color: #744210; }
+    .chip-Escolar    { background: #cce0ff; color: #001051; }
+    .chip-Superior   { background: #ffd6e2; color: #8b1535; }
+    .chip-Parvularia { background: #d0f5e6; color: #1a6644; }
+    .chip-Multinivel { background: #fff3c4; color: #7a5a00; }
     .chip-Traspaso   { background: #fed7d7; color: #742a2a; }
     .chip-Sin        { background: #e2e8f0; color: #2d3748; }
 
@@ -113,8 +119,8 @@
     .paginacion span { font-size: .83rem; color: #718096; }
 
     /* ── Nota ── */
-    .nota { background: #fff8f0; border: 1px solid #f6ad55; border-radius: 8px;
-      padding: .8rem 1rem; font-size: .8rem; color: #744210; margin-bottom: 1.1rem; line-height: 1.5; }
+    .nota { background: #fffbea; border: 1px solid var(--amarillo); border-radius: 8px;
+      padding: .8rem 1rem; font-size: .8rem; color: #7a5a00; margin-bottom: 1.1rem; line-height: 1.5; }
     .nota strong { font-weight: 700; }
 
     /* ══════════════════════════════════════════════════════════════
@@ -174,7 +180,7 @@
       padding: .5rem .75rem; cursor: pointer; background: var(--sub-bg);
       user-select: none;
     }
-    .ley-sub-header:hover { background: #e2ecf8; }
+    .ley-sub-header:hover { background: #daf4ed; }
     .ley-sub-header .cod { font-family: monospace; font-size: .78rem; color: #4a5568; width: 28px; flex-shrink: 0; }
     .ley-sub-header .den { flex: 1; font-weight: 600; color: var(--azul); }
     .ley-sub-header .tot { font-variant-numeric: tabular-nums; font-weight: 700;
@@ -193,7 +199,7 @@
       border: 1px solid #e8edf2;
       user-select: none;
     }
-    .ley-item-header:hover { background: #ebf4ff; }
+    .ley-item-header:hover { background: #e8f9f2; }
     .ley-item-header .cod { font-family: monospace; font-size: .76rem; color: #4a5568; width: 24px; flex-shrink: 0; }
     .ley-item-header .den { flex: 1; font-weight: 500; }
     .ley-item-header .tot { font-variant-numeric: tabular-nums; font-weight: 600;
@@ -209,7 +215,7 @@
       padding: .3rem .5rem; border-radius: 4px;
       margin-bottom: .18rem;
     }
-    .ley-asig:hover { background: #f0f7ff; }
+    .ley-asig:hover { background: #edfaf4; }
     .ley-asig.traspaso {
       background: repeating-linear-gradient(
         -45deg, #fff5f5, #fff5f5 4px, #ffe 4px, #ffe 8px
@@ -246,35 +252,35 @@
     .ejec-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: .7rem; margin-bottom: 1.2rem; }
     .ejec-bar-wrap { position: relative; background: #edf2f7; border-radius: 4px; height: 14px; overflow: hidden; flex: 1; min-width: 80px; }
     .ejec-bar { height: 100%; border-radius: 4px; transition: width .4s ease; }
-    .ejec-bar.verde  { background: #38a169; }
-    .ejec-bar.amarillo { background: #d69e2e; }
-    .ejec-bar.rojo   { background: #e53e3e; }
+    .ejec-bar.verde  { background: var(--verde); }
+    .ejec-bar.amarillo { background: var(--amarillo); }
+    .ejec-bar.rojo   { background: var(--rosa); }
     .ejec-row-bars { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
     .ejec-row-pct { font-size: .8rem; font-weight: 700; white-space: nowrap; }
-    .var-pos { color: #276749; font-weight: 600; }
-    .var-neg { color: #9b2c2c; font-weight: 600; }
+    .var-pos { color: #1a6644; font-weight: 600; }
+    .var-neg { color: #8b1535; font-weight: 600; }
 
     /* BIPS badge en asignación */
     .bips-badge {
       display: inline-flex; align-items: center; gap: .25rem;
-      background: #e9d8fd; color: #553c9a; border-radius: 99px;
+      background: #ffd6e2; color: #8b1535; border-radius: 99px;
       font-size: .66rem; font-weight: 700; padding: .1rem .45rem;
       text-decoration: none; white-space: nowrap; cursor: pointer;
     }
-    .bips-badge:hover { background: #d6bcfa; text-decoration: none; }
+    .bips-badge:hover { background: #fbb6c8; text-decoration: none; }
 
     /* BIPS en detalle overlay */
-    .bips-detalle { background: #faf5ff; border: 1px solid #d6bcfa; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
-    .bips-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #553c9a; margin-bottom: .55rem; }
-    .bips-eval-row { display: flex; align-items: flex-start; gap: .6rem; padding: .35rem 0; border-bottom: 1px solid #e9d8fd; font-size: .81rem; }
+    .bips-detalle { background: #fff5f8; border: 1px solid #fbb6c8; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
+    .bips-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #8b1535; margin-bottom: .55rem; }
+    .bips-eval-row { display: flex; align-items: flex-start; gap: .6rem; padding: .35rem 0; border-bottom: 1px solid #fdd6e2; font-size: .81rem; }
     .bips-eval-row:last-child { border-bottom: none; }
     .bips-eval-nom { flex: 1; }
     .bips-eval-links { display: flex; gap: .4rem; flex-shrink: 0; }
     .bips-eval-cta { font-family: monospace; font-size: .73rem; color: #718096; }
 
     /* Ejecución en detalle overlay */
-    .ejec-detalle { background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
-    .ejec-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #276749; margin-bottom: .55rem; }
+    .ejec-detalle { background: #f0fdf8; border: 1px solid #a8e6ce; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
+    .ejec-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #1a6644; margin-bottom: .55rem; }
     .ejec-detalle .lineas { display: flex; flex-direction: column; gap: .3rem; }
     .ejec-lin { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
     .ejec-lin .lbl { width: 90px; color: #4a5568; flex-shrink: 0; }
@@ -284,7 +290,7 @@
     .bips-ano-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
     .bips-ano-chip { padding: .22rem .6rem; border-radius: 99px; background: #e2e8f0; font-size: .76rem; cursor: pointer; border: none; }
     .bips-ano-chip.activo { background: var(--azul); color: white; }
-    .bips-link { color: var(--azul-claro); text-decoration: none; font-size: .78rem; }
+    .bips-link { color: var(--verde); text-decoration: none; font-size: .78rem; }
     .bips-link:hover { text-decoration: underline; }
 
     @media (max-width: 640px) {
@@ -298,11 +304,12 @@
 
 <!-- ══ PANTALLA DE ACCESO ══════════════════════════════════════════════════ -->
 <div id="login-overlay" style="
-  position:fixed;inset:0;background:#1a3a5c;z-index:9999;
-  display:flex;align-items:center;justify-content:center;">
+  position:fixed;inset:0;background:#001051;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Roboto',system-ui,sans-serif;">
   <div style="background:white;border-radius:12px;padding:2.5rem 2rem;
-    width:min(360px,90vw);text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)">
-    <div style="font-size:1.5rem;font-weight:700;color:#1a3a5c;margin-bottom:.3rem">
+    width:min(360px,90vw);text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.35)">
+    <div style="font-size:1.5rem;font-weight:700;color:#001051;margin-bottom:.3rem">
       Presupuesto Educación 2026
     </div>
     <div style="font-size:.83rem;color:#718096;margin-bottom:1.5rem">
@@ -310,15 +317,15 @@
     </div>
     <input id="login-input" type="password" placeholder="Contraseña"
       style="width:100%;padding:.65rem .9rem;border:1px solid #dde3ea;border-radius:7px;
-        font-size:1rem;outline:none;margin-bottom:.75rem;box-sizing:border-box"
+        font-size:1rem;font-family:'Roboto',system-ui,sans-serif;outline:none;margin-bottom:.75rem;box-sizing:border-box"
       onkeydown="if(event.key==='Enter')verificarClave()"
       autofocus>
     <button onclick="verificarClave()"
-      style="width:100%;padding:.65rem;background:#1a3a5c;color:white;border:none;
-        border-radius:7px;font-size:1rem;font-weight:600;cursor:pointer">
+      style="width:100%;padding:.65rem;background:#001051;color:white;border:none;
+        border-radius:7px;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Roboto',system-ui,sans-serif">
       Ingresar
     </button>
-    <div id="login-error" style="color:#e53e3e;font-size:.8rem;margin-top:.6rem;display:none">
+    <div id="login-error" style="color:#ea517b;font-size:.8rem;margin-top:.6rem;display:none">
       Contraseña incorrecta
     </div>
   </div>
