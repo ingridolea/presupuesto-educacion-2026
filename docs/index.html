@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presupuesto Educación Chile 2026</title>
+  <style>
+    :root {
+      --azul:        #1a3a5c;
+      --azul-med:    #2c5f8a;
+      --azul-claro:  #4a90d9;
+      --gris:        #f5f7fa;
+      --borde:       #dde3ea;
+      --texto:       #2d3748;
+      --sub-bg:      #edf2f7;
+      --item-bg:     #f7fafc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--texto); }
+
+    /* ── Header ── */
+    header {
+      background: var(--azul); color: white;
+      padding: 1.1rem 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 600; }
+    header small { font-size: 0.77rem; opacity: 0.72; display: block; }
+    .badge { background: var(--azul-claro); color: white; font-size: 0.68rem;
+      padding: 0.18rem 0.55rem; border-radius: 99px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Layout ── */
+    main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 2rem; }
+
+    /* ── Cards de resumen ── */
+    .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: .9rem; margin-bottom: 1.4rem; }
+    .card { background: white; border: 1px solid var(--borde); border-radius: 9px; padding: 1rem 1.2rem; }
+    .card.dest { border-left: 4px solid var(--azul-claro); }
+    .card-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #718096; margin-bottom: .3rem; }
+    .card-valor { font-size: 1.4rem; font-weight: 700; color: var(--azul); }
+    .card-sub { font-size: .75rem; color: #718096; margin-top: .18rem; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: .45rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tab { padding: .45rem 1rem; border: 1px solid var(--borde); border-radius: 6px;
+      cursor: pointer; font-size: .85rem; background: white; color: var(--texto); transition: all .12s; }
+    .tab:hover { border-color: var(--azul-claro); color: var(--azul-claro); }
+    .tab.activo { background: var(--azul); color: white; border-color: var(--azul); }
+
+    /* ── Panels ── */
+    .panel { display: none; }
+    .panel.activo { display: block; }
+
+    /* ── Barras ── */
+    .barras { margin: .4rem 0 1.2rem; }
+    .barra-fila { display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem; }
+    .barra-label { width: 120px; font-size: .8rem; text-align: right; flex-shrink: 0; }
+    .barra-track { flex: 1; background: #edf2f7; border-radius: 4px; height: 20px; overflow: hidden; }
+    .barra-fill { height: 100%; border-radius: 4px; transition: width .45s ease; }
+    .barra-valor { width: 155px; font-size: .78rem; color: #4a5568; flex-shrink: 0; }
+    .barra-pct { width: 42px; font-size: .8rem; font-weight: 600; flex-shrink: 0; }
+
+    /* ── Filtros ── */
+    .filtros { display: flex; gap: .7rem; margin-bottom: .9rem; flex-wrap: wrap; align-items: flex-end; }
+    .filtro-grupo { display: flex; flex-direction: column; gap: .22rem; }
+    .filtro-grupo label { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: #718096; }
+    select, input[type=text] {
+      border: 1px solid var(--borde); border-radius: 6px;
+      padding: .42rem .7rem; font-size: .85rem; background: white; color: var(--texto); outline: none;
+    }
+    select:focus, input:focus { border-color: var(--azul-claro); }
+    input[type=text] { min-width: 210px; }
+    .btn { padding: .45rem 1rem; background: var(--azul); color: white; border: none;
+      border-radius: 6px; cursor: pointer; font-size: .85rem; transition: background .12s; }
+    .btn:hover { background: var(--azul-med); }
+    .btn.sec { background: white; color: var(--azul); border: 1px solid var(--borde); }
+    .btn.sec:hover { border-color: var(--azul); }
+
+    /* ── Tabla base ── */
+    .tabla-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    thead th { background: var(--azul); color: white; padding: .55rem .7rem;
+      text-align: left; font-weight: 600; position: sticky; top: 0; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--borde); }
+    tbody tr:hover { background: #eef6ff; }
+    tbody td { padding: .45rem .7rem; vertical-align: middle; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .mono { font-family: monospace; font-size: .8rem; }
+
+    /* ── Link-style rows ── */
+    .link-row { cursor: pointer; }
+    .link-row:hover .prog-nom { color: var(--azul-claro); text-decoration: underline; }
+    .chevron-btn {
+      background: none; border: none; cursor: pointer; font-size: .78rem;
+      color: var(--azul-claro); padding: .18rem .45rem; border-radius: 4px;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: .3rem;
+    }
+    .chevron-btn:hover { background: #ebf8ff; }
+
+    /* ── Chips de nivel ── */
+    .chip { display: inline-block; padding: .13rem .5rem; border-radius: 99px;
+      font-size: .69rem; font-weight: 600; white-space: nowrap; }
+    .chip-Escolar    { background: #bee3f8; color: #1a365d; }
+    .chip-Superior   { background: #d6bcfa; color: #44337a; }
+    .chip-Parvularia { background: #c6f6d5; color: #1c4532; }
+    .chip-Multinivel { background: #fefcbf; color: #744210; }
+    .chip-Traspaso   { background: #fed7d7; color: #742a2a; }
+    .chip-Sin        { background: #e2e8f0; color: #2d3748; }
+
+    /* ── Paginación ── */
+    .paginacion { display: flex; gap: .5rem; align-items: center; margin-top: .9rem; flex-wrap: wrap; }
+    .paginacion span { font-size: .83rem; color: #718096; }
+
+    /* ── Nota ── */
+    .nota { background: #fff8f0; border: 1px solid #f6ad55; border-radius: 8px;
+      padding: .8rem 1rem; font-size: .8rem; color: #744210; margin-bottom: 1.1rem; line-height: 1.5; }
+    .nota strong { font-weight: 700; }
+
+    /* ══════════════════════════════════════════════════════════════
+       PANEL DE DETALLE DE PROGRAMA (overlay deslizante)
+    ══════════════════════════════════════════════════════════════ */
+    #detalle-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      z-index: 100; display: none; align-items: stretch;
+      justify-content: flex-end;
+    }
+    #detalle-overlay.visible { display: flex; }
+
+    #detalle-panel {
+      background: white; width: min(860px, 95vw); height: 100vh;
+      overflow-y: auto; display: flex; flex-direction: column;
+      box-shadow: -4px 0 24px rgba(0,0,0,.18);
+      animation: slideIn .2s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    #detalle-header {
+      background: var(--azul); color: white; padding: 1rem 1.3rem;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+    }
+    #detalle-header h2 { font-size: 1rem; font-weight: 600; line-height: 1.4; }
+    #detalle-header small { font-size: .75rem; opacity: .75; display: block; margin-top: .2rem; }
+    #detalle-close {
+      background: none; border: none; color: white; cursor: pointer;
+      font-size: 1.4rem; line-height: 1; padding: 0 .25rem; flex-shrink: 0;
+      opacity: .8;
+    }
+    #detalle-close:hover { opacity: 1; }
+
+    #detalle-body { padding: 1.1rem 1.3rem; flex: 1; }
+    #detalle-loading { text-align: center; padding: 2.5rem; color: #718096; font-size: .9rem; }
+
+    /* ── Sección I/G ── */
+    .ley-seccion { margin-bottom: 1.5rem; }
+    .ley-seccion-titulo {
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .07em;
+      color: #718096; padding: .35rem .5rem; background: #edf2f7;
+      border-radius: 5px; margin-bottom: .5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .ley-seccion-titulo strong { font-size: .88rem; color: var(--azul); font-weight: 700; }
+
+    /* ── Filas del árbol ── */
+    .ley-tree { font-size: .83rem; }
+
+    /* Subtítulo */
+    .ley-sub {
+      border: 1px solid var(--borde); border-radius: 6px; margin-bottom: .45rem; overflow: hidden;
+    }
+    .ley-sub-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .75rem; cursor: pointer; background: var(--sub-bg);
+      user-select: none;
+    }
+    .ley-sub-header:hover { background: #e2ecf8; }
+    .ley-sub-header .cod { font-family: monospace; font-size: .78rem; color: #4a5568; width: 28px; flex-shrink: 0; }
+    .ley-sub-header .den { flex: 1; font-weight: 600; color: var(--azul); }
+    .ley-sub-header .tot { font-variant-numeric: tabular-nums; font-weight: 700;
+      color: var(--azul); font-size: .85rem; white-space: nowrap; }
+    .ley-sub-header .arr { font-size: .75rem; color: #718096; transition: transform .15s; }
+    .ley-sub-header.open .arr { transform: rotate(90deg); }
+    .ley-sub-body { display: none; padding: .3rem .5rem .5rem 1rem; }
+    .ley-sub-body.open { display: block; }
+
+    /* Ítem */
+    .ley-item { margin-bottom: .3rem; }
+    .ley-item-header {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .38rem .6rem; cursor: pointer;
+      background: var(--item-bg); border-radius: 5px;
+      border: 1px solid #e8edf2;
+      user-select: none;
+    }
+    .ley-item-header:hover { background: #ebf4ff; }
+    .ley-item-header .cod { font-family: monospace; font-size: .76rem; color: #4a5568; width: 24px; flex-shrink: 0; }
+    .ley-item-header .den { flex: 1; font-weight: 500; }
+    .ley-item-header .tot { font-variant-numeric: tabular-nums; font-weight: 600;
+      color: #2d3748; font-size: .82rem; white-space: nowrap; }
+    .ley-item-header .arr { font-size: .72rem; color: #a0aec0; transition: transform .15s; }
+    .ley-item-header.open .arr { transform: rotate(90deg); }
+    .ley-item-body { display: none; padding: .25rem 0 .1rem 1.1rem; }
+    .ley-item-body.open { display: block; }
+
+    /* Asignación (hoja) */
+    .ley-asig {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .3rem .5rem; border-radius: 4px;
+      margin-bottom: .18rem;
+    }
+    .ley-asig:hover { background: #f0f7ff; }
+    .ley-asig.traspaso {
+      background: repeating-linear-gradient(
+        -45deg, #fff5f5, #fff5f5 4px, #ffe 4px, #ffe 8px
+      );
+    }
+    .ley-asig .cod { font-family: monospace; font-size: .74rem; color: #718096; flex-shrink: 0; width: 52px; }
+    .ley-asig .den { flex: 1; font-size: .81rem; }
+    .ley-asig .badges { display: flex; gap: .3rem; flex-shrink: 0; }
+    .ley-asig .monto { font-variant-numeric: tabular-nums; font-size: .81rem;
+      font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 110px; text-align: right; }
+
+    .glosa-tooltip { position: relative; cursor: help; }
+    .glosa-tooltip .tt {
+      display: none; position: absolute; right: 0; top: 1.2rem; z-index: 20;
+      background: #2d3748; color: white; font-size: .73rem; border-radius: 5px;
+      padding: .4rem .65rem; max-width: 280px; white-space: normal;
+      line-height: 1.45; pointer-events: none;
+    }
+    .glosa-tooltip:hover .tt { display: block; }
+
+    /* ── Nota traspaso en la hoja ── */
+    .motivo { font-size: .71rem; color: #742a2a; margin-top: .08rem; }
+
+    /* ── Totales parciales en la sección ── */
+    .ley-total-row {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 1rem; padding: .45rem .6rem;
+      border-top: 2px solid var(--azul); margin-top: .4rem;
+      font-weight: 700; font-size: .86rem; color: var(--azul);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Ejecución ── */
+    .ejec-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: .7rem; margin-bottom: 1.2rem; }
+    .ejec-bar-wrap { position: relative; background: #edf2f7; border-radius: 4px; height: 14px; overflow: hidden; flex: 1; min-width: 80px; }
+    .ejec-bar { height: 100%; border-radius: 4px; transition: width .4s ease; }
+    .ejec-bar.verde  { background: #38a169; }
+    .ejec-bar.amarillo { background: #d69e2e; }
+    .ejec-bar.rojo   { background: #e53e3e; }
+    .ejec-row-bars { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+    .ejec-row-pct { font-size: .8rem; font-weight: 700; white-space: nowrap; }
+    .var-pos { color: #276749; font-weight: 600; }
+    .var-neg { color: #9b2c2c; font-weight: 600; }
+
+    /* BIPS badge en asignación */
+    .bips-badge {
+      display: inline-flex; align-items: center; gap: .25rem;
+      background: #e9d8fd; color: #553c9a; border-radius: 99px;
+      font-size: .66rem; font-weight: 700; padding: .1rem .45rem;
+      text-decoration: none; white-space: nowrap; cursor: pointer;
+    }
+    .bips-badge:hover { background: #d6bcfa; text-decoration: none; }
+
+    /* BIPS en detalle overlay */
+    .bips-detalle { background: #faf5ff; border: 1px solid #d6bcfa; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
+    .bips-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #553c9a; margin-bottom: .55rem; }
+    .bips-eval-row { display: flex; align-items: flex-start; gap: .6rem; padding: .35rem 0; border-bottom: 1px solid #e9d8fd; font-size: .81rem; }
+    .bips-eval-row:last-child { border-bottom: none; }
+    .bips-eval-nom { flex: 1; }
+    .bips-eval-links { display: flex; gap: .4rem; flex-shrink: 0; }
+    .bips-eval-cta { font-family: monospace; font-size: .73rem; color: #718096; }
+
+    /* Ejecución en detalle overlay */
+    .ejec-detalle { background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 7px; padding: .75rem 1rem; margin-bottom: 1.1rem; }
+    .ejec-detalle h4 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #276749; margin-bottom: .55rem; }
+    .ejec-detalle .lineas { display: flex; flex-direction: column; gap: .3rem; }
+    .ejec-lin { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
+    .ejec-lin .lbl { width: 90px; color: #4a5568; flex-shrink: 0; }
+    .ejec-lin .val { width: 105px; font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; flex-shrink: 0; }
+
+    /* ── BIPS ── */
+    .bips-ano-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
+    .bips-ano-chip { padding: .22rem .6rem; border-radius: 99px; background: #e2e8f0; font-size: .76rem; cursor: pointer; border: none; }
+    .bips-ano-chip.activo { background: var(--azul); color: white; }
+    .bips-link { color: var(--azul-claro); text-decoration: none; font-size: .78rem; }
+    .bips-link:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem; }
+      header { padding: .9rem 1rem; }
+      #detalle-panel { width: 100vw; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ PANTALLA DE ACCESO ══════════════════════════════════════════════════ -->
+<div id="login-overlay" style="
+  position:fixed;inset:0;background:#1a3a5c;z-index:9999;
+  display:flex;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:12px;padding:2.5rem 2rem;
+    width:min(360px,90vw);text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="font-size:1.5rem;font-weight:700;color:#1a3a5c;margin-bottom:.3rem">
+      Presupuesto Educación 2026
+    </div>
+    <div style="font-size:.83rem;color:#718096;margin-bottom:1.5rem">
+      Educación 2020 — acceso restringido
+    </div>
+    <input id="login-input" type="password" placeholder="Contraseña"
+      style="width:100%;padding:.65rem .9rem;border:1px solid #dde3ea;border-radius:7px;
+        font-size:1rem;outline:none;margin-bottom:.75rem;box-sizing:border-box"
+      onkeydown="if(event.key==='Enter')verificarClave()"
+      autofocus>
+    <button onclick="verificarClave()"
+      style="width:100%;padding:.65rem;background:#1a3a5c;color:white;border:none;
+        border-radius:7px;font-size:1rem;font-weight:600;cursor:pointer">
+      Ingresar
+    </button>
+    <div id="login-error" style="color:#e53e3e;font-size:.8rem;margin-top:.6rem;display:none">
+      Contraseña incorrecta
+    </div>
+  </div>
+</div>
+
+<script>
+// Cambia CLAVE_HASH por el resultado de: btoa(tuClave + ':edu2026')
+// Para generarlo: abre la consola del navegador y escribe:
+//   btoa('miClave:edu2026')
+const CLAVE_HASH = 'ZWR1MjAyNjplZHUyMDI2';  // clave por defecto: edu2026 — cámbiala
+
+function verificarClave() {
+  const val = document.getElementById('login-input').value;
+  const hash = btoa(val + ':edu2026');
+  if (hash === CLAVE_HASH || CLAVE_HASH === 'CONFIGURA_LA_CLAVE') {
+    sessionStorage.setItem('edu2026_ok', hash);
+    document.getElementById('login-overlay').style.display = 'none';
+    init().catch(console.error);
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-input').value = '';
+  }
+}
+
+// Verificar si ya está autenticado en esta sesión
+(function() {
+  if (CLAVE_HASH === 'CONFIGURA_LA_CLAVE') {
+    // Sin clave configurada → acceso directo
+    document.getElementById('login-overlay').style.display = 'none';
+  } else if (sessionStorage.getItem('edu2026_ok') === CLAVE_HASH) {
+    document.getElementById('login-overlay').style.display = 'none';
+  }
+})();
+</script>
+
+<header>
+  <div>
+    <h1>Explorador Presupuesto Educación Chile 2026</h1>
+    <small>Partida 09 — Ministerio de Educación &nbsp;|&nbsp; Presupuesto Inicial Ley</small>
+  </div>
+  <span class="badge">Beta v1.1</span>
+</header>
+
+<!-- ══ OVERLAY DE DETALLE ══════════════════════════════════════════════════ -->
+<div id="detalle-overlay" onclick="cerrarDetalle(event)">
+  <div id="detalle-panel">
+    <div id="detalle-header">
+      <div>
+        <h2 id="detalle-titulo">Programa</h2>
+        <small id="detalle-subtitulo"></small>
+      </div>
+      <button id="detalle-close" onclick="cerrarDetalle()">✕</button>
+    </div>
+    <div id="detalle-body">
+      <div id="detalle-loading">Cargando detalle…</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <div class="nota">
+    <strong>Nota metodológica:</strong> Montos en miles de pesos (M$).
+    El consolidado excluye traspasos internos (Cap.95 y líneas de doble conteo JUNJI/DEP→SLEP).
+    Consolidado + Traspasos = Total XML ✓ &nbsp;|&nbsp;
+    Haga clic en cualquier programa para ver el detalle hasta nivel de asignación.
+  </div>
+
+  <div class="resumen-grid" id="resumen-grid">
+    <div class="card"><div class="card-label">Cargando…</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab activo"  onclick="cambiarTab('distribucion')">Distribución</div>
+    <div class="tab"         onclick="cambiarTab('programas')">Programas</div>
+    <div class="tab"         onclick="cambiarTab('capitulos')">Capítulos</div>
+    <div class="tab"         onclick="cambiarTab('slep')">SLEP</div>
+    <div class="tab"         onclick="cambiarTab('cuentas')">Líneas de cuenta</div>
+    <div class="tab"         onclick="cambiarTab('traspasos')">Traspasos</div>
+    <div class="tab"         onclick="cambiarTab('ejecucion')">Ejecución Q1</div>
+    <div class="tab"         onclick="cambiarTab('bips')">Evaluaciones BIPS</div>
+    <div class="tab"         onclick="cambiarTab('metodologia')">Metodología</div>
+  </div>
+
+  <!-- ── Panel: Distribución ── -->
+  <div class="panel activo" id="panel-distribucion">
+    <div class="card">
+      <div class="card-label">Gasto consolidado por nivel educativo</div>
+      <div class="barras" id="barras-nivel"></div>
+    </div>
+  </div>
+
+  <!-- ── Panel: Programas ── -->
+  <div class="panel" id="panel-programas">
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Nivel educativo</label>
+        <select id="filtro-nivel-prog" onchange="cargarProgramas()">
+          <option value="">Todos</option>
+          <option value="Escolar">Escolar</option>
+          <option value="Superior">Superior</option>
+          <option value="Parvularia">Parvularia</option>
+          <option value="Multinivel">Multinivel</option>
+        </select>
+      </div>
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Cap.</th><th>Capítulo</th><th>Prog.</th><th>Programa</th>
+          <th>Nivel</th><th class="num">Gasto (M$)</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-programas">
+          <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Capítulos ── -->
+  <div class="panel" id="panel-capitulos">
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Nivel educativo</label>
+        <select id="filtro-nivel-cap" onchange="cargarCapitulos()">
+          <option value="">Todos</option>
+          <option value="Escolar">Escolar</option>
+          <option value="Superior">Superior</option>
+          <option value="Parvularia">Parvularia</option>
+          <option value="Multinivel">Multinivel</option>
+        </select>
+      </div>
+    </div>
+    <div class="tabla-wrapper">
+      <table id="tabla-capitulos">
+        <thead><tr>
+          <th>Cód.</th><th>Capítulo</th><th>Nivel</th>
+          <th class="num">Gasto (M$)</th><th class="num">Programas</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-capitulos">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Subpanel inline de programas por capítulo -->
+    <div id="cap-programas-panel" style="display:none; margin-top:1rem;">
+      <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+        <span id="cap-programas-titulo" style="font-weight:600;color:var(--azul)"></span>
+        <button class="btn sec" style="font-size:.78rem;padding:.3rem .7rem" onclick="cerrarCapProgramas()">✕ Cerrar</button>
+      </div>
+      <div class="tabla-wrapper">
+        <table>
+          <thead><tr>
+            <th>Prog.</th><th>Programa</th><th>Nivel</th>
+            <th class="num">Gasto (M$)</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-cap-programas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Panel: SLEP ── -->
+  <div class="panel" id="panel-slep">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-label">Servicios Locales de Educación Pública (Caps. 18–77)</div>
+      <div id="resumen-slep" style="color:#718096;font-size:.85rem;padding:.3rem 0">Cargando…</div>
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Cód.</th><th>SLEP</th><th class="num">Gasto (M$)</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-slep">
+          <tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Líneas de cuenta ── -->
+  <div class="panel" id="panel-cuentas">
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Buscar</label>
+        <input type="text" id="filtro-q" placeholder="denominación, código, glosa…"
+          onkeydown="if(event.key==='Enter')cargarCuentas()">
+      </div>
+      <div class="filtro-grupo">
+        <label>Nivel</label>
+        <select id="filtro-nivel-cta" onchange="cargarCuentas()">
+          <option value="">Todos</option>
+          <option value="Escolar">Escolar</option>
+          <option value="Superior">Superior</option>
+          <option value="Parvularia">Parvularia</option>
+          <option value="Multinivel">Multinivel</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <label>Tipo</label>
+        <select id="filtro-tipo-cta" onchange="cargarCuentas()">
+          <option value="">I + G</option>
+          <option value="G">Gasto (G)</option>
+          <option value="I">Ingreso (I)</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <label>Traspasos</label>
+        <select id="filtro-traspasos" onchange="cargarCuentas()">
+          <option value="false">Excluir</option>
+          <option value="true">Incluir</option>
+        </select>
+      </div>
+      <button class="btn" onclick="cargarCuentas()">Buscar</button>
+      <button class="btn sec" onclick="limpiarFiltrosCuentas()">Limpiar</button>
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Cap.</th><th>Programa</th><th>Cuenta</th><th>Denominación</th>
+          <th>Nivel</th><th class="num">Monto (M$)</th>
+        </tr></thead>
+        <tbody id="tbody-cuentas">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="paginacion" id="paginacion-cuentas"></div>
+  </div>
+
+  <!-- ── Panel: Traspasos ── -->
+  <div class="panel" id="panel-traspasos">
+    <div class="nota">
+      Montos que fluyen desde la institucionalidad central (Cap.95, JUNJI, DEP) hacia los SLEP.
+      <strong>Marcados pero no eliminados</strong> del dataset; excluidos del consolidado.
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Cap.</th><th>Programa</th><th>Cuenta</th><th>Denominación</th>
+          <th>Motivo</th><th class="num">Monto (M$)</th>
+        </tr></thead>
+        <tbody id="tbody-traspasos">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Ejecución Q1 2026 ── -->
+  <div class="panel" id="panel-ejecucion">
+    <div class="ejec-summary" id="ejec-summary">
+      <div class="card"><div class="card-label">Cargando…</div></div>
+    </div>
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Buscar institución</label>
+        <input type="text" id="filtro-ejec-q" placeholder="nombre institución…"
+          onkeydown="if(event.key==='Enter')cargarEjecucion()">
+      </div>
+      <button class="btn" onclick="cargarEjecucion()">Buscar</button>
+      <button class="btn sec" onclick="document.getElementById('filtro-ejec-q').value='';cargarEjecucion()">Limpiar</button>
+    </div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Institución</th>
+          <th class="num">Formulado</th>
+          <th class="num">Vigente</th>
+          <th class="num">Variación</th>
+          <th>Ejec. Q1 2026</th>
+          <th class="num">% Ejec.</th>
+        </tr></thead>
+        <tbody id="tbody-ejecucion">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Evaluaciones BIPS ── -->
+  <div class="panel" id="panel-bips">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-label">Programas evaluados — Ministerio de Educación (2020–2024)</div>
+      <div id="bips-resumen" style="font-size:.85rem;color:#718096;padding:.2rem 0">Cargando…</div>
+    </div>
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Año</label>
+        <select id="filtro-bips-ano" onchange="cargarBips()">
+          <option value="">Todos</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <label>Buscar programa</label>
+        <input type="text" id="filtro-bips-q" placeholder="nombre programa…"
+          onkeydown="if(event.key==='Enter')cargarBips()">
+      </div>
+      <button class="btn" onclick="cargarBips()">Buscar</button>
+      <button class="btn sec" onclick="limpiarFiltrosBips()">Limpiar</button>
+    </div>
+    <div id="bips-por-ano" class="bips-ano-chips"></div>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr>
+          <th>Año</th><th>Programa</th><th>Servicio</th>
+          <th>Tipo oferta</th><th>Presupuesto 2026</th><th>Informe</th>
+        </tr></thead>
+        <tbody id="tbody-bips">
+          <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#718096">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Panel: Metodología ── -->
+  <div class="panel" id="panel-metodologia">
+    <div class="card" style="line-height:1.7; font-size:.87rem;">
+      <h3 style="margin-bottom:.9rem;color:var(--azul)">Metodología de clasificación</h3>
+      <h4 style="margin-bottom:.35rem">Fuentes</h4>
+      <ul style="margin-left:1.4rem;margin-bottom:.9rem">
+        <li>Presupuesto Inicial 2026 (XML DIPRES — Partida 09)</li>
+        <li>Instrucciones de Ejecución Presupuestaria 2025 (lógica de traspasos)</li>
+      </ul>
+      <h4 style="margin-bottom:.35rem">Consolidación de traspasos</h4>
+      <ul style="margin-left:1.4rem;margin-bottom:.9rem">
+        <li><strong>Cap.95 completo</strong> (Progs. 01, 11, 17, 20): redistribuidor puro hacia SLEP</li>
+        <li><strong>JUNJI cap.11 prog.01 cuenta 24.02.001</strong>: ya en Cap.95 Prog.11</li>
+        <li><strong>DEP cap.17 prog.02 cuentas 24.02.051 y 24.02.063</strong>: ya en Cap.95 Prog.17</li>
+      </ul>
+      <h4 style="margin-bottom:.35rem">Clasificación por nivel</h4>
+      <ul style="margin-left:1.4rem;margin-bottom:.9rem">
+        <li><span class="chip chip-Parvularia">Parvularia</span> — Cap.04, Cap.11 Progs.01/02/04</li>
+        <li><span class="chip chip-Escolar">Escolar</span> — Cap.01–03, 15, 17, SLEP caps.18–77, JUNAEB Salud/Escolar</li>
+        <li><span class="chip chip-Superior">Superior</span> — Caps.90–91, 13, líneas superiores JUNAEB 09.03</li>
+        <li><span class="chip chip-Multinivel">Multinivel</span> — JUNAEB Alimentación, TNE, Hogares, Residencia</li>
+        <li><span class="chip chip-Traspaso">Traspaso</span> — Cap.95 completo</li>
+      </ul>
+      <h4 style="margin-bottom:.35rem">Verificación</h4>
+      <p>Consolidado + Traspasos = Total XML ✓ &nbsp;|&nbsp; Diferencia parseo vs XML = 0 M$ ✓</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════════ -->
+<script>
+// ── Constantes ────────────────────────────────────────────────────────────
+const COLORES = {
+  Escolar: '#4a90d9', Superior: '#9b59b6', Parvularia: '#2ecc71',
+  Multinivel: '#f39c12', Traspaso: '#e74c3c', 'Sin clasificar': '#95a5a6',
+};
+const LIMIT = 200;
+let cuentasOffset = 0;
+
+// ── Utilidades ─────────────────────────────────────────────────────────────
+const fmt   = n => n == null ? '—' : Math.round(n).toLocaleString('es-CL');
+const chipNivel = n => {
+  const c = (n || 'Sin').split(' ')[0];
+  return `<span class="chip chip-${c}">${n || '—'}</span>`;
+};
+const chevronBtn = (cap, prog, label) =>
+  `<button class="chevron-btn" onclick="abrirDetalle('${cap}','${prog}',event)">▶ ${label}</button>`;
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ── Carga inicial ──────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([
+    cargarResumen(),
+    cargarBarrasNivel(),
+    cargarProgramas(),
+    cargarCapitulos(),
+    cargarSlep(),
+    cargarCuentas(),
+    cargarTraspasos(),
+  ]);
+}
+
+// ── Resumen tarjetas ───────────────────────────────────────────────────────
+async function cargarResumen() {
+  const d = await fetchJSON('./api/resumen.json');
+  const grid = document.getElementById('resumen-grid');
+  const con = d.total_consolidado_clp, tras = d.total_traspasos_clp, tot = d.total_partida_09_clp;
+  grid.innerHTML = `
+    <div class="card dest">
+      <div class="card-label">Gasto consolidado P.09</div>
+      <div class="card-valor">M$ ${fmt(con)}</div>
+      <div class="card-sub">Sin doble conteo</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total XML (bruto)</div>
+      <div class="card-valor">M$ ${fmt(tot)}</div>
+      <div class="card-sub">Incluye traspasos internos</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Traspasos internos</div>
+      <div class="card-valor">M$ ${fmt(tras)}</div>
+      <div class="card-sub">${((tras/tot)*100).toFixed(1)}% del bruto</div>
+    </div>
+    ${d.por_nivel.map(n => `
+    <div class="card">
+      <div class="card-label">${n.nivel}</div>
+      <div class="card-valor" style="font-size:1.1rem">M$ ${fmt(n.monto_clp)}</div>
+      <div class="card-sub">${n.porcentaje}%</div>
+    </div>`).join('')}`;
+}
+
+// ── Barras distribución ───────────────────────────────────────────────────
+async function cargarBarrasNivel() {
+  const d = await fetchJSON('./api/resumen.json');
+  const max = d.por_nivel[0]?.monto_clp || 1;
+  document.getElementById('barras-nivel').innerHTML = d.por_nivel.map(n => `
+    <div class="barra-fila">
+      <div class="barra-label">${n.nivel}</div>
+      <div class="barra-track">
+        <div class="barra-fill" style="width:${(n.monto_clp/max*100).toFixed(1)}%;background:${COLORES[n.nivel]||'#718096'}"></div>
+      </div>
+      <div class="barra-valor">M$ ${fmt(n.monto_clp)}</div>
+      <div class="barra-pct">${n.porcentaje}%</div>
+    </div>`).join('');
+}
+
+// ── Cache de datos estáticos (se carga una sola vez) ──────────────────────
+let _programasCache = null, _capitulosCache = null, _cuentasCache = null, _traspasosCache = null;
+async function getProgramas() {
+  if (!_programasCache) _programasCache = await fetchJSON('./api/programas.json');
+  return _programasCache;
+}
+async function getCapitulos() {
+  if (!_capitulosCache) _capitulosCache = await fetchJSON('./api/capitulos.json');
+  return _capitulosCache;
+}
+async function getCuentas() {
+  if (!_cuentasCache) _cuentasCache = await fetchJSON('./api/cuentas.json');
+  return _cuentasCache;
+}
+async function getTraspasos() {
+  if (!_traspasosCache) _traspasosCache = await fetchJSON('./api/traspasos.json');
+  return _traspasosCache;
+}
+
+// ── Programas ──────────────────────────────────────────────────────────────
+async function cargarProgramas() {
+  const nivel = document.getElementById('filtro-nivel-prog')?.value || '';
+  let data = await getProgramas();
+  if (nivel) data = data.filter(p => p.nivel_educativo === nivel);
+  const tbody = document.getElementById('tbody-programas');
+  tbody.innerHTML = data.map(p => `
+    <tr class="link-row" onclick="abrirDetalle('${p.capitulo_cod}','${p.programa_cod}',event)">
+      <td class="mono">${p.capitulo_cod}</td>
+      <td class="prog-nom" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+        title="${p.capitulo_nom}">${p.capitulo_nom}</td>
+      <td class="mono">${p.programa_cod}</td>
+      <td class="prog-nom" title="${p.programa_nom}">${p.programa_nom}</td>
+      <td>${chipNivel(p.nivel_educativo)}</td>
+      <td class="num">${fmt(p.monto_clp)}</td>
+      <td>${chevronBtn(p.capitulo_cod, p.programa_cod, 'Ver detalle')}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:1rem;color:#718096">Sin resultados</td></tr>';
+}
+
+// ── Capítulos ──────────────────────────────────────────────────────────────
+async function cargarCapitulos() {
+  const nivel = document.getElementById('filtro-nivel-cap')?.value || '';
+  let data = await getCapitulos();
+  if (nivel) data = data.filter(c => c.nivel_educativo === nivel);
+  const tbody = document.getElementById('tbody-capitulos');
+  tbody.innerHTML = data.map(c => `
+    <tr>
+      <td class="mono">${c.capitulo_cod}</td>
+      <td>${c.capitulo_nom}</td>
+      <td>${chipNivel(c.nivel_educativo)}</td>
+      <td class="num">${fmt(c.monto_clp)}</td>
+      <td class="num">${c.num_programas}</td>
+      <td><button class="chevron-btn" onclick="expandirCapProgramas('${c.capitulo_cod}','${c.capitulo_nom}',event)">▶ Programas</button></td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:1rem">Sin resultados</td></tr>';
+}
+
+async function expandirCapProgramas(cap, capNom, event) {
+  event.stopPropagation();
+  const panel = document.getElementById('cap-programas-panel');
+  document.getElementById('cap-programas-titulo').textContent = `Cap.${cap} — ${capNom}`;
+  document.getElementById('tbody-cap-programas').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#718096">Cargando…</td></tr>';
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const all = await getProgramas();
+  const data = all.filter(p => p.capitulo_cod === cap.padStart(2,'0'));
+  document.getElementById('tbody-cap-programas').innerHTML = data.map(p => `
+    <tr class="link-row" onclick="abrirDetalle('${p.capitulo_cod}','${p.programa_cod}',event)">
+      <td class="mono">${p.programa_cod}</td>
+      <td class="prog-nom" title="${p.programa_nom}">${p.programa_nom}</td>
+      <td>${chipNivel(p.nivel_educativo)}</td>
+      <td class="num">${fmt(p.monto_clp)}</td>
+      <td>${chevronBtn(p.capitulo_cod, p.programa_cod, 'Ver detalle')}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#718096">Sin programas</td></tr>';
+}
+
+function cerrarCapProgramas() {
+  document.getElementById('cap-programas-panel').style.display = 'none';
+}
+
+// ── SLEP ───────────────────────────────────────────────────────────────────
+async function cargarSlep() {
+  const d = await fetchJSON('./api/slep.json');
+  document.getElementById('resumen-slep').innerHTML =
+    `<strong>Total SLEP:</strong> M$ ${fmt(d.total_clp)} &nbsp;|&nbsp; ${d.sleps.length} servicios activos`;
+  document.getElementById('tbody-slep').innerHTML = d.sleps.map(s => {
+    const progPrincipal = s.programas[0]?.programa_cod || '01';
+    return `
+    <tr>
+      <td class="mono">${s.capitulo_cod}</td>
+      <td class="prog-nom">${s.capitulo_nom}</td>
+      <td class="num">${fmt(s.monto_clp)}</td>
+      <td>${s.programas.map(p =>
+        chevronBtn(s.capitulo_cod, p.programa_cod, `Prog.${p.programa_cod}`)
+      ).join(' ')}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Líneas de cuenta ───────────────────────────────────────────────────────
+async function cargarCuentas(offset = 0) {
+  cuentasOffset = offset;
+  const q     = (document.getElementById('filtro-q')?.value || '').toLowerCase();
+  const nivel = document.getElementById('filtro-nivel-cta')?.value || '';
+  const tipo  = document.getElementById('filtro-tipo-cta')?.value || '';
+  const tras  = document.getElementById('filtro-traspasos')?.value || 'false';
+
+  let items = await getCuentas();
+  if (tras === 'false') items = items.filter(r => !r.es_traspaso);
+  if (nivel) items = items.filter(r => r.nivel_educativo === nivel);
+  if (tipo)  items = items.filter(r => r.cuenta_tipo === tipo);
+  if (q)     items = items.filter(r =>
+    [r.denominacion, r.cuenta_cod, r.capitulo_nom, r.programa_nom, r.glosa_xml||'']
+      .some(f => (f||'').toLowerCase().includes(q)));
+
+  const d = { items: items.slice(offset, offset + LIMIT), total: items.length, offset, limit: LIMIT };
+  document.getElementById('tbody-cuentas').innerHTML = d.items.map(r => `
+    <tr>
+      <td class="mono">${r.capitulo_cod}</td>
+      <td class="prog-nom" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer"
+        title="Ver detalle programa" onclick="abrirDetalle('${r.capitulo_cod}','${r.programa_cod}',event)">
+        ${r.programa_nom}</td>
+      <td class="mono">${r.cuenta_cod}</td>
+      <td style="max-width:260px" title="${r.denominacion}">${r.denominacion}</td>
+      <td>${chipNivel(r.nivel_educativo)}</td>
+      <td class="num">${fmt(r.monto_clp)}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:1rem;color:#718096">Sin resultados</td></tr>';
+  renderPaginacion(d.total, d.offset, d.limit);
+}
+
+function renderPaginacion(total, offset, limit) {
+  const pag = document.getElementById('paginacion-cuentas');
+  const pg = Math.floor(offset / limit) + 1, tpg = Math.ceil(total / limit);
+  pag.innerHTML = `
+    <span>${fmt(total)} registros — Pág. ${pg} / ${tpg}</span>
+    ${offset > 0 ? `<button class="btn sec" onclick="cargarCuentas(${offset-limit})">← Anterior</button>` : ''}
+    ${offset+limit < total ? `<button class="btn sec" onclick="cargarCuentas(${offset+limit})">Siguiente →</button>` : ''}`;
+}
+
+function limpiarFiltrosCuentas() {
+  ['filtro-q','filtro-nivel-cta','filtro-tipo-cta'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('filtro-traspasos').value = 'false';
+  cargarCuentas();
+}
+
+// ── Traspasos ──────────────────────────────────────────────────────────────
+async function cargarTraspasos() {
+  const items = await getTraspasos();
+  document.getElementById('tbody-traspasos').innerHTML = items.map(r => `
+    <tr>
+      <td class="mono">${r.capitulo_cod}</td>
+      <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+        title="${r.programa_nom}">${r.programa_nom}</td>
+      <td class="mono">${r.cuenta_cod}</td>
+      <td style="max-width:180px" title="${r.denominacion}">${r.denominacion}</td>
+      <td style="max-width:220px;font-size:.76rem;color:#742a2a">${r.motivo_traspaso}</td>
+      <td class="num">${fmt(r.monto_clp)}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:1rem">Sin traspasos</td></tr>';
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// DETALLE DE PROGRAMA — árbol colapsable
+// ══════════════════════════════════════════════════════════════════════════
+async function abrirDetalle(cap, prog, event) {
+  if (event) event.stopPropagation();
+
+  const overlay = document.getElementById('detalle-overlay');
+  const body    = document.getElementById('detalle-body');
+  const titulo  = document.getElementById('detalle-titulo');
+  const sub     = document.getElementById('detalle-subtitulo');
+
+  titulo.textContent = `Cap.${cap} — Programa ${prog}`;
+  sub.textContent    = 'Cargando…';
+  body.innerHTML     = '<div id="detalle-loading">Cargando detalle…</div>';
+  overlay.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const [d, ejec] = await Promise.all([
+      fetchJSON(`./api/programa/${cap}/${prog}.json`),
+      fetchJSON(`./api/ejecucion/${cap}/${prog}.json`).catch(() => null),
+    ]);
+    titulo.textContent = `${d.programa_nom}`;
+    sub.textContent    = `Cap.${d.capitulo_cod} — ${d.capitulo_nom} | Programa ${d.programa_cod}`;
+    // Build crosswalk index by cuenta_cod for badge rendering
+    _crosswalkByCta = {};
+    for (const e of (d.bips_evaluaciones || [])) {
+      if (e.cuenta_cod) {
+        if (!_crosswalkByCta[e.cuenta_cod]) _crosswalkByCta[e.cuenta_cod] = [];
+        _crosswalkByCta[e.cuenta_cod].push(e);
+      }
+    }
+    body.innerHTML = renderBipsDetalle(d.bips_evaluaciones) + renderEjecucionDetalle(ejec) + renderDetalle(d);
+  } catch(e) {
+    body.innerHTML = `<div style="color:red;padding:1rem">Error cargando detalle: ${e.message}</div>`;
+  }
+}
+
+function cerrarDetalle(event) {
+  if (event && event.target !== document.getElementById('detalle-overlay')) return;
+  document.getElementById('detalle-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+// ── Crosswalk BIPS ↔ Presupuesto ──────────────────────────────────────────
+// Loaded per-program when detail opens; keyed by cuenta_cod for badge rendering
+let _crosswalkByCta = {};
+
+function renderBipsDetalle(evaluaciones) {
+  if (!evaluaciones || evaluaciones.length === 0) return '';
+  return `
+  <div class="bips-detalle">
+    <h4>Evaluaciones BIPS (${evaluaciones.length})</h4>
+    ${evaluaciones.map(e => {
+      const cta = e.cuenta_cod ? `<span class="bips-eval-cta" title="Cuenta presupuestaria">${e.capitulo_cod}.${e.programa_cod} ${e.cuenta_cod}</span>` : '';
+      const linkBips = e.url_bips
+        ? `<a class="bips-link" href="${e.url_bips}" target="_blank" rel="noopener">BIPS ↗</a>` : '';
+      const linkInforme = e.url_informe
+        ? `<a class="bips-link" href="${e.url_informe}" target="_blank" rel="noopener">Informe ↗</a>` : '';
+      return `<div class="bips-eval-row">
+        <div class="bips-eval-nom">${e.nombre_bips}</div>
+        ${cta}
+        <div class="bips-eval-links">${linkBips}${linkInforme}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderEjecucionDetalle(ejec) {
+  if (!ejec || ejec.error || !ejec.items || ejec.items.length === 0) return '';
+  // Aggregate totals from account-level detail
+  let form = 0, vig = 0, exec = 0;
+  for (const r of ejec.items) { form += r.formulado_clp; vig += r.vigente_clp; exec += r.ejecucion_q1_clp; }
+  const pct = vig > 0 ? (exec / vig * 100).toFixed(1) : 0;
+  const barColor = pct >= 30 ? '#38a169' : pct >= 15 ? '#d69e2e' : '#e53e3e';
+  return `
+  <div class="ejec-detalle">
+    <h4>Ejecución presupuestaria Q1 2026</h4>
+    <div class="lineas">
+      <div class="ejec-lin">
+        <span class="lbl">Formulado</span>
+        <span class="val">M$ ${fmt(form)}</span>
+      </div>
+      <div class="ejec-lin">
+        <span class="lbl">Vigente</span>
+        <span class="val">M$ ${fmt(vig)}</span>
+        ${form !== vig ? `<span style="font-size:.74rem;color:${vig>form?'#276749':'#9b2c2c'}">${vig>form?'▲':'▼'} M$ ${fmt(Math.abs(vig-form))}</span>` : ''}
+      </div>
+      <div class="ejec-lin">
+        <span class="lbl">Ejecutado Q1</span>
+        <span class="val">M$ ${fmt(exec)}</span>
+        <div class="ejec-bar-wrap" style="max-width:140px">
+          <div class="ejec-bar" style="width:${Math.min(pct,100)}%;background:${barColor}"></div>
+        </div>
+        <span style="font-size:.82rem;font-weight:700;color:${barColor}">${pct}%</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDetalle(d) {
+  let html = '';
+
+  const seccionLabel = { I: 'INGRESOS', G: 'GASTOS' };
+  for (const [tipo, label] of [['I','INGRESOS'], ['G','GASTOS']]) {
+    const sec = tipo === 'I' ? d.ingresos : d.gastos;
+    if (!sec) continue;
+
+    html += `
+    <div class="ley-seccion">
+      <div class="ley-seccion-titulo">
+        <span>${label}</span>
+        <strong>M$ ${fmt(sec.total)}</strong>
+      </div>
+      <div class="ley-tree">
+        ${sec.subtitulos.map(ss => renderSubtitulo(ss, tipo)).join('')}
+      </div>
+      <div class="ley-total-row">
+        <span>TOTAL ${label}</span>
+        <span>M$ ${fmt(sec.total)}</span>
+      </div>
+    </div>`;
+  }
+  return html;
+}
+
+function renderSubtitulo(ss, tipo) {
+  const uid = `sub-${tipo}-${ss.cod}-${Math.random().toString(36).slice(2,6)}`;
+  const items = ss.items.map(ii => renderItem(ii, tipo, ss.cod)).join('');
+  return `
+  <div class="ley-sub">
+    <div class="ley-sub-header" onclick="toggleSub('${uid}')">
+      <span class="arr">▶</span>
+      <span class="cod">${ss.cod}</span>
+      <span class="den">${ss.denominacion || '—'}</span>
+      <span class="tot">M$ ${fmt(ss.total)}</span>
+    </div>
+    <div class="ley-sub-body" id="${uid}">${items}</div>
+  </div>`;
+}
+
+function renderItem(ii, tipo, ssCod) {
+  const uid = `item-${tipo}-${ssCod}-${ii.cod}-${Math.random().toString(36).slice(2,6)}`;
+  const asigs = ii.asignaciones.map(a => renderAsignacion(a)).join('');
+
+  // Si solo hay 1 asignación y su código termina en .000, fusionar (es la misma línea)
+  const solaHoja = ii.asignaciones.length === 1 && ii.asignaciones[0].asignacion === '000';
+  if (solaHoja) {
+    const a = ii.asignaciones[0];
+    return renderAsignacion(a, true);
+  }
+
+  return `
+  <div class="ley-item">
+    <div class="ley-item-header" onclick="toggleItem('${uid}')">
+      <span class="arr">▶</span>
+      <span class="cod">${ii.cod}</span>
+      <span class="den">${ii.denominacion || '—'}</span>
+      <span class="tot">M$ ${fmt(ii.total)}</span>
+    </div>
+    <div class="ley-item-body" id="${uid}">${asigs}</div>
+  </div>`;
+}
+
+function renderAsignacion(a, esItemSolitario = false) {
+  const chipHtml  = a.nivel_educativo && a.nivel_educativo !== 'Traspaso'
+    ? chipNivel(a.nivel_educativo) : '';
+  const traspasoBadge = a.es_traspaso
+    ? `<span class="chip chip-Traspaso" title="${a.motivo_traspaso}">Traspaso</span>` : '';
+
+  const glosaHtml = a.glosa_xml
+    ? `<span class="glosa-tooltip">ℹ<div class="tt">${a.glosa_xml.substring(0,300)}</div></span>` : '';
+
+  // BIPS badge if this cuenta_cod has a linked evaluation
+  const bipsMaches = _crosswalkByCta[a.cuenta_cod] || [];
+  const bipsHtml = bipsMaches.map(e => {
+    const href = e.url_bips || e.url_informe || '#';
+    const label = e.nombre_bips.length > 28 ? e.nombre_bips.slice(0,27)+'…' : e.nombre_bips;
+    return `<a class="bips-badge" href="${href}" target="_blank" rel="noopener" title="${e.nombre_bips}">BIPS: ${label}</a>`;
+  }).join('');
+
+  // Muestra cod abreviado: solo la asignación (AAA), o el ítem (II) si es solitario
+  const codCorto = esItemSolitario
+    ? a.cuenta_cod.split('.')[1]          // muestra II
+    : a.cuenta_cod.split('.')[2];          // muestra AAA
+
+  return `
+  <div class="ley-asig ${a.es_traspaso ? 'traspaso' : ''}">
+    <span class="cod" title="${a.cuenta_cod}">${codCorto}</span>
+    <span class="den">
+      ${a.denominacion}
+      ${a.es_traspaso && a.motivo_traspaso
+        ? `<div class="motivo">${a.motivo_traspaso}</div>` : ''}
+    </span>
+    <span class="badges">${chipHtml}${traspasoBadge}${bipsHtml}${glosaHtml}</span>
+    <span class="monto">M$ ${fmt(a.monto_clp)}</span>
+  </div>`;
+}
+
+// ── Toggle colapsable ──────────────────────────────────────────────────────
+function toggleSub(uid) {
+  const body = document.getElementById(uid);
+  const header = body.previousElementSibling;
+  const isOpen = body.classList.toggle('open');
+  header.classList.toggle('open', isOpen);
+}
+function toggleItem(uid) {
+  const body = document.getElementById(uid);
+  const header = body.previousElementSibling;
+  const isOpen = body.classList.toggle('open');
+  header.classList.toggle('open', isOpen);
+}
+
+// ── Expandir todo / colapsar todo ──────────────────────────────────────────
+function expandirTodo() {
+  document.querySelectorAll('.ley-sub-body, .ley-item-body').forEach(el => el.classList.add('open'));
+  document.querySelectorAll('.ley-sub-header, .ley-item-header').forEach(el => el.classList.add('open'));
+}
+function colapsarTodo() {
+  document.querySelectorAll('.ley-sub-body, .ley-item-body').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.ley-sub-header, .ley-item-header').forEach(el => el.classList.remove('open'));
+}
+
+// ── Escape key cierra overlay ──────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarDetalle();
+});
+
+// ── Ejecución Q1 2026 ──────────────────────────────────────────────────────
+let ejecucionCargada = false;
+async function cargarEjecucion() {
+  ejecucionCargada = true;
+  const q = document.getElementById('filtro-ejec-q')?.value || '';
+  const url = '/api/ejecucion' + (q ? '?nombre='+encodeURIComponent(q) : '');
+  const d = await fetchJSON(url);
+
+  if (d.error) {
+    document.getElementById('tbody-ejecucion').innerHTML =
+      `<tr><td colspan="6" style="color:#742a2a;padding:1rem">${d.error}</td></tr>`;
+    return;
+  }
+
+  // Summary cards
+  document.getElementById('ejec-summary').innerHTML = `
+    <div class="card dest">
+      <div class="card-label">Total vigente 2026</div>
+      <div class="card-valor" style="font-size:1.1rem">M$ ${fmt(d.total_vigente_clp)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Formulado inicial</div>
+      <div class="card-valor" style="font-size:1.1rem">M$ ${fmt(d.total_formulado_clp)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Ejecutado Q1 2026</div>
+      <div class="card-valor" style="font-size:1.1rem">M$ ${fmt(d.total_ejecucion_clp)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">% ejecución global</div>
+      <div class="card-valor" style="font-size:1.5rem">${d.pct_ejecucion_global}%</div>
+    </div>`;
+
+  const maxVig = Math.max(...d.items.map(r => r.vigente), 1);
+
+  document.getElementById('tbody-ejecucion').innerHTML = d.items.map(r => {
+    const pct = r.pct_ejecucion;
+    const barColor = pct >= 30 ? 'verde' : pct >= 15 ? 'amarillo' : 'rojo';
+    const varClass = r.variacion >= 0 ? 'var-pos' : 'var-neg';
+    const varSgn   = r.variacion >= 0 ? '+' : '';
+    return `<tr>
+      <td style="max-width:260px" title="${r.nombre_inst}">${r.nombre_inst}</td>
+      <td class="num">${fmt(r.formulado)}</td>
+      <td class="num">${fmt(r.vigente)}</td>
+      <td class="num ${varClass}">${varSgn}${fmt(r.variacion)}</td>
+      <td>
+        <div class="ejec-row-bars">
+          <div class="ejec-bar-wrap" title="Ejecutado Q1: M$ ${fmt(r.ejecucion)}">
+            <div class="ejec-bar ${barColor}" style="width:${Math.min(r.vigente>0?r.ejecucion/r.vigente*100:0,100).toFixed(1)}%"></div>
+          </div>
+          <div style="font-size:.74rem;color:#718096">M$ ${fmt(r.ejecucion)}</div>
+        </div>
+      </td>
+      <td class="num ejec-row-pct" style="color:${pct>=30?'#276749':pct>=15?'#744210':'#9b2c2c'}">${pct}%</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:1rem;color:#718096">Sin resultados</td></tr>';
+}
+
+// ── BIPS Evaluaciones ──────────────────────────────────────────────────────
+let bipsCargado = false;
+let bipsData = null;
+
+async function cargarBips() {
+  bipsCargado = true;
+  const ano      = document.getElementById('filtro-bips-ano')?.value || '';
+  const q        = document.getElementById('filtro-bips-q')?.value || '';
+  const url = '/api/bips'
+    + (ano || q ? '?' : '')
+    + (ano ? 'ano='+encodeURIComponent(ano) : '')
+    + (ano && q ? '&' : '')
+    + (q ? 'q='+encodeURIComponent(q) : '');
+  const d = await fetchJSON(url);
+
+  if (d.error) {
+    document.getElementById('tbody-bips').innerHTML =
+      `<tr><td colspan="6" style="color:#742a2a;padding:1rem">${d.error}</td></tr>`;
+    return;
+  }
+  bipsData = d;
+
+  document.getElementById('bips-resumen').innerHTML =
+    `${fmt(d.total)} programas evaluados`;
+
+  // Chips por año
+  document.getElementById('bips-por-ano').innerHTML = d.por_ano.map(y =>
+    `<button class="bips-ano-chip ${y.ano===ano?'activo':''}"
+      onclick="document.getElementById('filtro-bips-ano').value='${y.ano}';cargarBips()"
+    >${y.ano}: ${y.count}</button>`
+  ).join('');
+
+  document.getElementById('tbody-bips').innerHTML = d.items.map(r => {
+    const enlace = r.url_informe
+      ? `<a class="bips-link" href="${r.url_informe}" target="_blank" rel="noopener">Informe ↗</a>`
+      : '—';
+    // Budget linkage
+    let presupuesto = '—';
+    if (r.presupuesto && r.presupuesto.cuenta_cod) {
+      const p = r.presupuesto;
+      presupuesto = `<button class="chevron-btn" style="font-size:.75rem"
+        onclick="abrirDetalle('${p.capitulo_cod}','${p.programa_cod}',event)"
+        title="${p.denominacion || ''}">${p.capitulo_cod}.${p.programa_cod} ${p.cuenta_cod}</button>`;
+    } else if (r.presupuesto) {
+      const p = r.presupuesto;
+      presupuesto = `<button class="chevron-btn" style="font-size:.75rem"
+        onclick="abrirDetalle('${p.capitulo_cod}','${p.programa_cod}',event)"
+        >Cap.${p.capitulo_cod} Prog.${p.programa_cod}</button>`;
+    }
+    return `<tr>
+      <td class="mono">${r.ano || '—'}</td>
+      <td style="max-width:240px" title="${r.nombre_programa||''}">${r.nombre_programa || '—'}</td>
+      <td style="max-width:140px;font-size:.79rem" title="${r.servicio||''}">${r.servicio || '—'}</td>
+      <td style="font-size:.78rem">${r.tipo_oferta || '—'}</td>
+      <td>${presupuesto}</td>
+      <td>${enlace}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:1rem;color:#718096">Sin resultados</td></tr>';
+}
+
+function limpiarFiltrosBips() {
+  document.getElementById('filtro-bips-ano').value = '';
+  document.getElementById('filtro-bips-q').value   = '';
+  cargarBips();
+}
+
+// ── Navegación tabs ────────────────────────────────────────────────────────
+const TAB_IDS = ['distribucion','programas','capitulos','slep','cuentas','traspasos','ejecucion','bips','metodologia'];
+function cambiarTab(id) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('activo', TAB_IDS[i] === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('activo', p.id === 'panel-' + id));
+  // Lazy-load de tabs pesados
+  if (id === 'ejecucion' && !ejecucionCargada) cargarEjecucion();
+  if (id === 'bips'      && !bipsCargado)      cargarBips();
+}
+
+// ── Arrancar (llamado desde el login) ─────────────────────────────────────
+// init() se llama desde verificarClave() o si CLAVE_HASH = 'CONFIGURA_LA_CLAVE'
+if (document.getElementById('login-overlay').style.display === 'none') {
+  init().catch(console.error);
+}
+</script>
+</body>
+</html>

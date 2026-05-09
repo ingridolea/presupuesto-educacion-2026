@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Datos crudos y procesados (no van al repo público)
+data/
+
+# Webapp local (solo se publica docs/)
+webapp/
+
+# Archivos locales
+*.xlsx
+*.pdf
+run.sh
